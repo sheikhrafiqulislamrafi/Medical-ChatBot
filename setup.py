@@ -1,10 +1,10 @@
 from setuptools import find_packages, setup
 
 setup(
-    name = 'Medical Chatbot',
+    name = 'Medical ChatBot',
     version= '0.0.0',
-    author= 'Boktiar Ahmed Bappy',
-    author_email= 'entbappy73@gmail.com',
+    author= 'Sheikh Rafiqul Islam Rafi',
+    author_email= 'sheikhrafiqulislam30@gmail.com',
     packages= find_packages(),
     install_requires = []
 
