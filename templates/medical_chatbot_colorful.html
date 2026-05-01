@@ -1,0 +1,334 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --teal: #0EA5E9; --teal-dark: #0369A1; --teal-light: #E0F2FE;
+  --violet: #8B5CF6; --violet-light: #EDE9FE;
+  --rose: #F43F5E; --rose-light: #FFE4E6;
+  --amber: #F59E0B; --amber-light: #FEF3C7;
+  --green: #10B981; --green-light: #D1FAE5;
+  --indigo: #6366F1;
+}
+#app { display: flex; flex-direction: column; height: 660px; border-radius: 20px; overflow: hidden; font-family: var(--font-sans); background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); position: relative; }
+
+/* HEADER */
+#header { padding: 0; background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 40%, #0EA5E9 100%); position: relative; overflow: hidden; }
+#header::before { content: ''; position: absolute; width: 200px; height: 200px; border-radius: 50%; background: rgba(255,255,255,0.08); top: -80px; right: -40px; }
+#header::after { content: ''; position: absolute; width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,0.06); bottom: -40px; left: 60px; }
+#header-inner { padding: 16px 18px; display: flex; align-items: center; gap: 12px; position: relative; z-index: 1; }
+.favicon { width: 42px; height: 42px; border-radius: 12px; background: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15); flex-shrink: 0; }
+.favicon svg { width: 24px; height: 24px; }
+#header-text h2 { font-size: 16px; font-weight: 500; color: white; }
+#header-text p { font-size: 11.5px; color: rgba(255,255,255,0.75); margin-top: 1px; }
+.status-pill { margin-left: auto; display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.2); border-radius: 20px; padding: 4px 10px; flex-shrink: 0; }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: #4ADE80; animation: blink 2s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.status-pill span { font-size: 11px; color: white; }
+
+/* DISCLAIMER */
+#disclaimer { margin: 12px 14px 0; padding: 10px 13px; background: linear-gradient(90deg, #FEF3C7, #FFE4E6); border-radius: 12px; border-left: 3px solid #F59E0B; font-size: 11.5px; color: #92400E; line-height: 1.5; display: flex; gap: 8px; }
+.disc-icon { font-size: 15px; flex-shrink: 0; }
+
+/* TABS */
+#tabs { display: flex; padding: 12px 14px 0; gap: 6px; }
+.tab { flex: 1; padding: 8px 6px; border-radius: 10px; border: 0.5px solid var(--color-border-tertiary); background: var(--color-background-secondary); font-size: 12px; color: var(--color-text-secondary); cursor: pointer; text-align: center; font-family: var(--font-sans); transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 5px; }
+.tab.active { background: linear-gradient(135deg, #6366F1, #8B5CF6); color: white; border-color: transparent; font-weight: 500; }
+.tab:hover:not(.active) { background: var(--color-background-tertiary); }
+
+/* PANELS */
+#chat-panel, #quiz-panel { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+#chat-panel.visible, #quiz-panel.visible { display: flex; }
+
+/* CHAT */
+#messages { flex: 1; overflow-y: auto; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+.msg { display: flex; gap: 8px; align-items: flex-end; max-width: 88%; }
+.msg.user { align-self: flex-end; flex-direction: row-reverse; }
+.avatar { width: 30px; height: 30px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.avatar.bot { background: linear-gradient(135deg, #6366F1, #8B5CF6); }
+.avatar.bot svg { width: 16px; height: 16px; }
+.avatar.user { background: linear-gradient(135deg, #0EA5E9, #6366F1); font-size: 11px; font-weight: 500; color: white; }
+.bubble { padding: 10px 13px; border-radius: 14px; font-size: 13px; line-height: 1.6; color: var(--color-text-primary); }
+.msg.bot .bubble { background: var(--color-background-secondary); border-bottom-left-radius: 4px; border: 0.5px solid var(--color-border-tertiary); }
+.msg.user .bubble { background: linear-gradient(135deg, #6366F1, #8B5CF6); color: white; border-bottom-right-radius: 4px; }
+.tag-row { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 6px; }
+.tag { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
+.tag.teal { background: #E0F2FE; color: #0369A1; }
+.tag.violet { background: #EDE9FE; color: #5B21B6; }
+.tag.rose { background: #FFE4E6; color: #9F1239; }
+.typing { display: flex; gap: 4px; align-items: center; padding: 10px 14px; }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--color-text-secondary); animation: bounce 1.2s infinite; }
+.dot:nth-child(2){animation-delay:.2s} .dot:nth-child(3){animation-delay:.4s}
+@keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-7px)} }
+
+/* SUGGESTIONS */
+#suggestions { display: flex; gap: 6px; flex-wrap: wrap; padding: 8px 14px; }
+.sug-btn { font-size: 11.5px; padding: 5px 11px; border-radius: 20px; border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-secondary); cursor: pointer; font-family: var(--font-sans); transition: all 0.15s; }
+.sug-btn:hover { border-color: #8B5CF6; color: #6366F1; background: #EDE9FE; }
+
+/* INPUT */
+#input-area { padding: 10px 14px; border-top: 0.5px solid var(--color-border-tertiary); display: flex; gap: 8px; align-items: flex-end; }
+#user-input { flex: 1; resize: none; border: 1px solid var(--color-border-secondary); border-radius: 12px; padding: 9px 12px; font-size: 13px; font-family: var(--font-sans); color: var(--color-text-primary); background: var(--color-background-secondary); outline: none; max-height: 80px; line-height: 1.5; }
+#user-input:focus { border-color: #8B5CF6; }
+#send-btn { width: 38px; height: 38px; border-radius: 12px; border: none; background: linear-gradient(135deg, #6366F1, #8B5CF6); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: opacity 0.15s; }
+#send-btn:hover { opacity: 0.9; }
+#send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* QUIZ */
+#quiz-panel { overflow-y: auto; padding: 14px; gap: 10px; }
+.quiz-header { text-align: center; padding: 10px 0 4px; }
+.quiz-header h3 { font-size: 15px; font-weight: 500; color: var(--color-text-primary); }
+.quiz-header p { font-size: 12px; color: var(--color-text-secondary); margin-top: 3px; }
+.progress-bar { height: 5px; background: var(--color-background-secondary); border-radius: 10px; overflow: hidden; margin: 8px 0; }
+.progress-fill { height: 100%; border-radius: 10px; background: linear-gradient(90deg, #6366F1, #0EA5E9); transition: width 0.4s; }
+.q-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: 14px; padding: 14px; }
+.q-num { font-size: 10px; font-weight: 500; color: #8B5CF6; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.q-text { font-size: 13.5px; font-weight: 500; color: var(--color-text-primary); line-height: 1.4; margin-bottom: 12px; }
+.q-icon { font-size: 22px; margin-bottom: 6px; display: block; }
+.options { display: flex; flex-direction: column; gap: 7px; }
+.opt { padding: 9px 13px; border-radius: 10px; border: 1px solid var(--color-border-tertiary); background: var(--color-background-secondary); font-size: 13px; color: var(--color-text-primary); cursor: pointer; font-family: var(--font-sans); text-align: left; transition: all 0.15s; display: flex; align-items: center; gap: 8px; }
+.opt:hover { border-color: #8B5CF6; background: #EDE9FE; color: #5B21B6; }
+.opt.selected { border-color: #6366F1; background: linear-gradient(90deg, #EDE9FE, #E0F2FE); color: #4338CA; font-weight: 500; }
+.opt-dot { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid currentColor; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.opt.selected .opt-dot::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #6366F1; display: block; }
+.quiz-nav { display: flex; gap: 8px; margin-top: 4px; }
+.nav-btn { flex: 1; padding: 10px; border-radius: 12px; font-size: 13px; font-family: var(--font-sans); cursor: pointer; transition: all 0.15s; font-weight: 500; }
+.nav-btn.prev { border: 1px solid var(--color-border-secondary); background: var(--color-background-secondary); color: var(--color-text-secondary); }
+.nav-btn.prev:hover { background: var(--color-background-tertiary); }
+.nav-btn.next { border: none; background: linear-gradient(135deg, #6366F1, #8B5CF6); color: white; }
+.nav-btn.next:disabled { opacity: 0.4; cursor: not-allowed; }
+.result-card { background: linear-gradient(135deg, #EDE9FE, #E0F2FE); border: 0.5px solid #A5B4FC; border-radius: 14px; padding: 16px; text-align: center; }
+.result-card h4 { font-size: 15px; font-weight: 500; color: #3730A3; margin-bottom: 6px; }
+.result-card p { font-size: 12.5px; color: #4338CA; line-height: 1.5; }
+.result-items { display: flex; flex-direction: column; gap: 7px; margin-top: 10px; text-align: left; }
+.result-item { background: var(--color-background-primary); border-radius: 10px; padding: 10px 13px; font-size: 12.5px; border: 0.5px solid var(--color-border-tertiary); display: flex; gap: 8px; align-items: flex-start; }
+.ri-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+.restart-btn { margin-top: 12px; width: 100%; padding: 10px; border-radius: 12px; border: none; background: linear-gradient(135deg, #6366F1, #8B5CF6); color: white; font-size: 13px; font-family: var(--font-sans); cursor: pointer; font-weight: 500; }
+</style>
+
+<h2 class="sr-only">Colorful medical chatbot with symptom checker questionnaire</h2>
+
+<div id="app">
+  <div id="header">
+    <div id="header-inner">
+      <div class="favicon">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="#EDE9FE"/>
+          <path d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7z" fill="#6366F1"/>
+        </svg>
+      </div>
+      <div id="header-text">
+        <h2>MediAssist AI</h2>
+        <p>Your intelligent health companion</p>
+      </div>
+      <div class="status-pill">
+        <div class="status-dot"></div>
+        <span>Online</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="disclaimer">
+    <span class="disc-icon">⚠️</span>
+    <span><strong>Disclaimer:</strong> For general information only. Not a substitute for professional medical advice. In emergencies, call your local emergency number immediately.</span>
+  </div>
+
+  <div id="tabs">
+    <button class="tab active" onclick="switchTab('chat')" id="tab-chat">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Chat
+    </button>
+    <button class="tab" onclick="switchTab('quiz')" id="tab-quiz">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Symptom Check
+    </button>
+  </div>
+
+  <!-- CHAT PANEL -->
+  <div id="chat-panel" class="visible">
+    <div id="messages">
+      <div class="msg bot">
+        <div class="avatar bot">
+          <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="rgba(255,255,255,0.2)"/><path d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7z" fill="white"/></svg>
+        </div>
+        <div>
+          <div class="bubble">
+            Hello! 👋 I'm MediAssist AI, your personal health information companion. I can help you understand symptoms, explain medical terms, and guide you on when to seek care.
+            <div class="tag-row">
+              <span class="tag teal">General info only</span>
+              <span class="tag violet">Not a diagnosis</span>
+              <span class="tag rose">See a doctor for personal advice</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="suggestions">
+      <button class="sug-btn" onclick="sendSug(this)">💊 Common cold remedies</button>
+      <button class="sug-btn" onclick="sendSug(this)">🩺 When to see a doctor?</button>
+      <button class="sug-btn" onclick="sendSug(this)">🧠 Managing anxiety</button>
+      <button class="sug-btn" onclick="sendSug(this)">💤 Sleep hygiene tips</button>
+    </div>
+    <div id="input-area">
+      <textarea id="user-input" placeholder="Ask a health question…" rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+      <button id="send-btn" onclick="sendMessage()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- QUIZ PANEL -->
+  <div id="quiz-panel">
+    <div class="quiz-header">
+      <h3>Symptom Checker</h3>
+      <p>Answer a few questions to understand your symptoms better</p>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+    <div id="quiz-content"></div>
+  </div>
+</div>
+
+<script>
+const SYSTEM = `You are MediAssist, a warm and empathetic medical information assistant. Provide clear, helpful general health information.
+Rules:
+- Never diagnose. Provide general education only.
+- Always recommend consulting a healthcare professional for personal medical decisions.
+- For emergencies always direct to emergency services.
+- Keep responses to 2-3 short paragraphs.
+- Use a warm, friendly tone with occasional relevant emoji.
+- End with: *This is general information only. Please consult a healthcare professional for personal advice.*`;
+
+const questions = [
+  { icon: "🤒", text: "How would you describe your main symptom?", options: ["Fever or chills", "Pain or discomfort", "Fatigue or weakness", "Breathing difficulty", "Digestive issues", "Other"] },
+  { icon: "⏱️", text: "How long have you been experiencing this?", options: ["Less than 24 hours", "1–3 days", "4–7 days", "More than a week", "It comes and goes"] },
+  { icon: "📊", text: "How severe would you rate your symptoms?", options: ["Mild — barely noticeable", "Moderate — affecting daily life", "Severe — hard to function", "Very severe — need urgent help"] },
+  { icon: "🌡️", text: "Do you have a fever?", options: ["No fever", "Low-grade (37.5–38°C)", "High fever (38°C+)", "Not sure"] },
+  { icon: "💊", text: "Have you taken any medication?", options: ["Yes, and it helped", "Yes, but no improvement", "No medication taken", "I have allergies / sensitivities"] },
+  { icon: "🏥", text: "Have you had this symptom before?", options: ["No, this is new", "Yes, occasionally", "Yes, it's a chronic issue", "Yes, and I have a diagnosis"] }
+];
+
+const recommendations = {
+  "Breathing difficulty": { color: "#F43F5E", bg: "#FFE4E6", label: "Seek care promptly", advice: "Breathing difficulties can sometimes require prompt medical attention. If severe, call emergency services immediately." },
+  "Very severe — hard to function": { color: "#F43F5E", bg: "#FFE4E6", label: "Seek urgent care", advice: "Severe symptoms warrant a visit to a healthcare provider or urgent care center soon." },
+  default: { color: "#8B5CF6", bg: "#EDE9FE", label: "Monitor & consult", advice: "Based on your responses, we recommend monitoring your symptoms and consulting a doctor if they worsen or persist beyond a few days." }
+};
+
+let currentQ = 0, answers = [], history = [];
+
+function switchTab(tab) {
+  document.getElementById('chat-panel').classList.toggle('visible', tab === 'chat');
+  document.getElementById('quiz-panel').classList.toggle('visible', tab === 'quiz');
+  document.getElementById('tab-chat').classList.toggle('active', tab === 'chat');
+  document.getElementById('tab-quiz').classList.toggle('active', tab === 'quiz');
+  if (tab === 'quiz' && document.getElementById('quiz-content').innerHTML === '') renderQuestion();
+}
+
+function renderQuestion() {
+  const pct = Math.round((currentQ / questions.length) * 100);
+  document.getElementById('progress').style.width = pct + '%';
+  if (currentQ >= questions.length) { renderResult(); return; }
+  const q = questions[currentQ];
+  const sel = answers[currentQ] || null;
+  document.getElementById('quiz-content').innerHTML = `
+    <div class="q-card">
+      <div class="q-num">Question ${currentQ + 1} of ${questions.length}</div>
+      <span class="q-icon">${q.icon}</span>
+      <div class="q-text">${q.text}</div>
+      <div class="options">${q.options.map((o, i) => `
+        <button class="opt${sel === o ? ' selected' : ''}" onclick="selectOpt(this,'${o.replace(/'/g,"\\'")}')">
+          <div class="opt-dot"></div>${o}
+        </button>`).join('')}
+      </div>
+    </div>
+    <div class="quiz-nav">
+      ${currentQ > 0 ? `<button class="nav-btn prev" onclick="prevQ()">← Back</button>` : '<div></div>'}
+      <button class="nav-btn next" ${!sel ? 'disabled' : ''} onclick="nextQ()" id="next-btn">
+        ${currentQ === questions.length - 1 ? 'See Results →' : 'Next →'}
+      </button>
+    </div>`;
+}
+
+function selectOpt(el, val) {
+  answers[currentQ] = val;
+  document.querySelectorAll('.opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  const nb = document.getElementById('next-btn');
+  if (nb) nb.disabled = false;
+}
+
+function nextQ() { if (answers[currentQ]) { currentQ++; renderQuestion(); } }
+function prevQ() { currentQ--; renderQuestion(); }
+
+function renderResult() {
+  document.getElementById('progress').style.width = '100%';
+  const urgency = answers.includes("Breathing difficulty") ? recommendations["Breathing difficulty"]
+    : answers.includes("Very severe — hard to function") ? recommendations["Very severe — hard to function"]
+    : recommendations.default;
+  const items = answers.map((a, i) => `<div class="result-item"><div class="ri-dot" style="background:${urgency.color}"></div><div><strong style="font-size:11px;color:var(--color-text-secondary)">${questions[i].text.replace('?','')}</strong><br>${a}</div></div>`).join('');
+  document.getElementById('quiz-content').innerHTML = `
+    <div class="result-card">
+      <h4>Your Symptom Summary</h4>
+      <p style="font-size:13px;font-weight:500;color:${urgency.color}">${urgency.label}</p>
+      <p style="margin-top:6px">${urgency.advice}</p>
+    </div>
+    <div class="result-items">${items}</div>
+    <p style="font-size:11px;color:var(--color-text-secondary);text-align:center;padding:6px 0 2px;font-style:italic">This is not a diagnosis. Always consult a qualified healthcare professional.</p>
+    <button class="restart-btn" onclick="restartQuiz()">Start Over</button>`;
+}
+
+function restartQuiz() { currentQ = 0; answers = []; renderQuestion(); }
+
+const msgs = document.getElementById('messages');
+const input = document.getElementById('user-input');
+const btn = document.getElementById('send-btn');
+
+function autoResize(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 80) + 'px'; }
+function handleKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
+function sendSug(b) { input.value = b.textContent.replace(/^[^\s]+\s/, ''); sendMessage(); }
+
+function addMsg(role, text) {
+  const wrap = document.createElement('div'); wrap.className = `msg ${role}`;
+  const av = document.createElement('div'); av.className = `avatar ${role}`;
+  if (role === 'bot') {
+    av.innerHTML = `<svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="rgba(255,255,255,0.2)"/><path d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7z" fill="white"/></svg>`;
+  } else { av.textContent = 'You'; }
+  const bub = document.createElement('div'); bub.className = 'bubble';
+  bub.innerHTML = text.replace(/\*(.*?)\*/g, '<em>$1</em>').replace(/\n/g, '<br>');
+  wrap.appendChild(av); wrap.appendChild(bub);
+  msgs.appendChild(wrap); msgs.scrollTop = msgs.scrollHeight;
+}
+
+function showTyping() {
+  const w = document.createElement('div'); w.className = 'msg bot'; w.id = 'typing-wrap';
+  const av = document.createElement('div'); av.className = 'avatar bot';
+  av.innerHTML = `<svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="rgba(255,255,255,0.2)"/><path d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7z" fill="white"/></svg>`;
+  const b = document.createElement('div'); b.className = 'bubble typing';
+  [1,2,3].forEach(()=>{const d=document.createElement('div');d.className='dot';b.appendChild(d);});
+  w.appendChild(av); w.appendChild(b); msgs.appendChild(w); msgs.scrollTop = msgs.scrollHeight;
+}
+
+function removeTyping() { const t = document.getElementById('typing-wrap'); if(t) t.remove(); }
+
+async function sendMessage() {
+  const text = input.value.trim(); if (!text) return;
+  addMsg('user', text);
+  history.push({ role: 'user', content: text });
+  input.value = ''; input.style.height = 'auto'; btn.disabled = true;
+  showTyping();
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, system: SYSTEM, messages: history })
+    });
+    const data = await res.json();
+    removeTyping();
+    const reply = data.content?.find(b => b.type === 'text')?.text || 'Sorry, I could not get a response. Please try again.';
+    addMsg('bot', reply);
+    history.push({ role: 'assistant', content: reply });
+  } catch(e) {
+    removeTyping();
+    addMsg('bot', 'Something went wrong. Please check your connection and try again.');
+  }
+  btn.disabled = false;
+}
+</script>

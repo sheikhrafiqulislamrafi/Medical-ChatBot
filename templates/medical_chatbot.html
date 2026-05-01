@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Chatbot</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+      integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.5.0/css/all.css"
+      integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU"
+      crossorigin="anonymous"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static', filename='style.css')}}"
+    />
+  </head>
+
+  <body>
+    <div
+      class="container-fluid h-100 d-flex align-items-center justify-content-center"
+      style="min-height: 100vh; padding: 20px 0"
+    >
+      <div class="col-md-8 col-xl-6">
+        <div class="card">
+          <!-- HEADER -->
+          <div class="card-header msg_head">
+            <div class="d-flex align-items-center bd-highlight">
+              <div class="img_cont">
+                <img
+                  src="https://cdn-icons-png.flaticon.com/512/387/387569.png"
+                  class="user_img"
+                  alt="bot"
+                />
+                <span class="online_icon"></span>
+              </div>
+              <div class="user_info">
+                <span>Medical Chatbot</span>
+                <p>Ask me anything!</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- DISCLAIMER -->
+          <div class="disclaimer">
+            ⚠ <strong>Disclaimer:</strong> This chatbot provides general health
+            information only. It is not a substitute for professional medical
+            advice. In emergencies, call your local emergency number
+            immediately.
+          </div>
+
+          <!-- MESSAGES -->
+          <div id="messageFormeight" class="card-body msg_card_body">
+            <!-- Welcome message -->
+            <div class="d-flex justify-content-start mb-2">
+              <div class="img_cont_msg">
+                <img
+                  src="https://cdn-icons-png.flaticon.com/512/387/387569.png"
+                  class="user_img_msg"
+                  alt="bot"
+                />
+              </div>
+              <div class="msg_cotainer" style="margin-left: 8px">
+                Hello! I am your Medical Chatbot. Ask me anything about health,
+                symptoms, medications, or when to see a doctor.
+                <span class="msg_time" id="welcome-time"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- SUGGESTION CHIPS -->
+          <div id="suggestions">
+            <button class="sug-chip" onclick="useSuggestion(this)">
+              Common cold vs flu?
+            </button>
+            <button class="sug-chip" onclick="useSuggestion(this)">
+              Signs of dehydration
+            </button>
+            <button class="sug-chip" onclick="useSuggestion(this)">
+              When to go to ER?
+            </button>
+            <button class="sug-chip" onclick="useSuggestion(this)">
+              Managing back pain
+            </button>
+            <button class="sug-chip" onclick="useSuggestion(this)">
+              Healthy sleep tips
+            </button>
+          </div>
+
+          <!-- INPUT FOOTER -->
+          <div class="card-footer">
+            <form
+              id="messageArea"
+              class="input-group d-flex align-items-center"
+            >
+              <input
+                type="text"
+                id="text"
+                name="msg"
+                placeholder="Type your message..."
+                autocomplete="off"
+                class="form-control type_msg"
+                required
+              />
+              <div class="input-group-append">
+                <button type="submit" id="send" class="send_btn">
+                  <i class="fas fa-location-arrow"></i>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let conversationHistory = [];
+
+      function getTime() {
+        const date = new Date();
+        const hour = date.getHours();
+        const minute = date.getMinutes();
+        return hour + ":" + (minute < 10 ? "0" : "") + minute;
+      }
+
+      document.getElementById("welcome-time").textContent = getTime();
+
+      function showTyping() {
+        const typingHtml = `
+      <div class="d-flex justify-content-start mb-2" id="typing-indicator">
+        <div class="img_cont_msg">
+          <img src="https://cdn-icons-png.flaticon.com/512/387/387569.png" class="user_img_msg" alt="bot"/>
+        </div>
+        <div style="margin-left:8px">
+          <div class="typing-indicator">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+      </div>`;
+        $("#messageFormeight").append(typingHtml);
+        scrollToBottom();
+      }
+
+      function hideTyping() {
+        $("#typing-indicator").remove();
+      }
+
+      function scrollToBottom() {
+        const body = document.getElementById("messageFormeight");
+        body.scrollTop = body.scrollHeight;
+      }
+
+      function formatBotText(text) {
+        return text
+          .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+          .replace(/\n- /g, "<br>• ")
+          .replace(/\n/g, "<br>");
+      }
+
+      $(document).ready(function () {
+        $("#messageArea").on("submit", function (event) {
+          event.preventDefault();
+
+          const str_time = getTime();
+          var rawText = $("#text").val().trim();
+          if (!rawText) return;
+
+          // Hide suggestions after first message
+          $("#suggestions").hide();
+
+          // Append user message (right side) — same structure as your reference
+          var userHtml =
+            '<div class="d-flex justify-content-end mb-4"><div class="msg_cotainer_send">' +
+            rawText +
+            '<span class="msg_time_send">' +
+            str_time +
+            '</span></div><div class="img_cont_msg"><img src="https://i.ibb.co/d5b84Xw/Untitled-design.png" class="rounded-circle user_img_msg"></div></div>';
+
+          $("#text").val("");
+          $("#messageFormeight").append(userHtml);
+
+          $.ajax({
+            data: {
+              msg: rawText,
+            },
+            type: "POST",
+            url: "/get",
+          }).done(function (data) {
+            var botHtml =
+              '<div class="d-flex justify-content-start mb-4"><div class="img_cont_msg"><img src="https://cdn-icons-png.flaticon.com/512/387/387569.png" class="rounded-circle user_img_msg"></div><div class="msg_cotainer">' +
+              data +
+              '<span class="msg_time">' +
+              str_time +
+              "</span></div></div>";
+            $("#messageFormeight").append($.parseHTML(botHtml));
+          });
+          event.preventDefault();
+        });
+      });
+      function useSuggestion(btn) {
+        $("#text").val(btn.textContent.trim());
+        $("#messageArea").submit();
+      }
+    </script>
+  </body>
+</html>
