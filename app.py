@@ -18,7 +18,6 @@ GEMINI_API_KEY=os.environ.get('GEMINI_API_KEY')
 
 os.environ["PINECONE_API_KEY"] = PINECONE_API_KEY
 os.environ["GEMINI_API_KEY"] = GEMINI_API_KEY
-
 embeddings = download_hugging_face_embeddings()
 
 
@@ -37,7 +36,7 @@ chatModel = ChatGoogleGenerativeAI(
     model="gemini-2.5-flash",
     temperature=0.4,
     #  google_api_key="GEMINI_API_KEY"
-   google_api_key="AIzaSyCiH_WNNfiydnf5jlbK_UMxTz_oBmdr7ig"
+   google_api_key=GEMINI_API_KEY
 )
 prompt = ChatPromptTemplate.from_messages(
     [
